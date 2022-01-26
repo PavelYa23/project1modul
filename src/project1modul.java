@@ -4,9 +4,10 @@ import java.util.Locale;
 import java.util.Scanner;
 
 public class project1modul {
+    static String alphabet = "абвгдежзийклмнопрстуфхцчшщъыьэюя., -?!—";
+
 
     public static void main(String[] args) {
-        String alphabet = "абвгдежзийклмнопрстуфхцчшщъыьэюя., -?!—";
         Scanner scanner = new Scanner(System.in);
         System.out.println("Введите число");
         int i = Integer.parseInt(scanner.nextLine());
@@ -42,9 +43,13 @@ public class project1modul {
                 String file1 = scanner.nextLine();
                 System.out.println("Введите файл 2");
                 String file2 = scanner.nextLine();
-                // while () {
-
-                // }
+                char[] alp = alphabet.toCharArray();
+                     for (int j = 1; j < alp.length; j++) {
+                         crypt(file1,file2,j);
+                         if (space(file2)) {
+                             break;
+                         }
+                 }
             }
         }
 
@@ -54,7 +59,6 @@ public class project1modul {
     public static void crypt(String file1, String file2, int key) {
         try (BufferedReader f1 = new BufferedReader(new FileReader(file1));
              BufferedWriter f2 = new BufferedWriter(new FileWriter(file2))) {
-            String alphabet = "абвгдежзийклмнопрстуфхцчшщъыьэюя'., -?!—";
             char[] alp = alphabet.toCharArray();
             while (f1.ready()) {
                 String st = f1.readLine().toLowerCase(Locale.ROOT);
@@ -86,10 +90,31 @@ public class project1modul {
 
     public static boolean space(String file) {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-//            while (br.ready()) {
-//
-//            }
+            double good = 0;
+            double vsego = 0;
+            while (br.ready()) {
 
+                char[] znaki = {'.', ',', '?', '!'};
+                String st = br.readLine().toLowerCase(Locale.ROOT);
+                char[] chfile1 = st.toCharArray();
+                for (int i = 0; i < chfile1.length-1; i++) {
+                    char z = chfile1[i];
+                    for (int j = 0; j < znaki.length; j++) {
+                        if(z == znaki[j]) {
+                            vsego++;
+                            if(chfile1[i+1] == ' ') {
+                                good++;
+                            }
+                        }
+                    }
+
+                }
+
+            }
+            double pi = good / vsego;
+            if (pi > 0.8) {
+                return true;
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
