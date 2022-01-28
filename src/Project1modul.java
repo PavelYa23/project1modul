@@ -6,83 +6,86 @@ import java.util.stream.Collectors;
 public class Project1modul {
     static String alphabet = "абвгдежзийклмнопрстуфхцчшщъыьэюя., -?!—";
 
-
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Введите число");
+        System.out.println("Здравствуйте!");
+        System.out.println("Данная программа предназначена для шифровки/расшифровки файлов с использованием ключа, брута и статанализа");
+        System.out.println("Выберете, что вы хотите сделать и нажмите соответствуюшую клавишу");
+        System.out.println("1.Шифровка по ключу с использованием шифра Цезаря");
+        System.out.println("2.Расшифровка по ключу с использованием шифра Цезаря");
+        System.out.println("3.Брут-форс, с использованием шифра Цезаря, не зная ключа");
+        System.out.println("4.Статистический анализ текста, на основе другого текста(желательно того же автора;)");
         int i = Integer.parseInt(scanner.nextLine());
         switch (i) {
             case 1: {
-                System.out.println("Введите файл1");
-                String file1 = scanner.nextLine();
-                System.out.println("Введите файл 2");
-                String file2 = scanner.nextLine();
-                System.out.println("Введите ключ");
+                System.out.println("Введите путь и имя файла, который хотите зашифровать:");
+                String fileEncrypt = scanner.nextLine();
+                System.out.println("Введите путь и имя файла, куда хотите сохранить зашифрованный текст:");
+                String fileDecrypt = scanner.nextLine();
+                System.out.println("Введите ключ:");
                 int key = Integer.parseInt(scanner.nextLine());
-                crypt(file1, file2, key);
+                crypt(fileEncrypt, fileDecrypt, key);
                 break;
-
             }
             case 2: {
-                System.out.println("Введите файл1");
-                String file1 = scanner.nextLine();
-                System.out.println("Введите файл 2");
-                String file2 = scanner.nextLine();
-                System.out.println("Введите ключ");
+                System.out.println("Введите путь и имя файла, который хотите расшифровать:");
+                String fileEncrypt = scanner.nextLine();
+                System.out.println("Введите путь и имя файла, куда хотите сохранить расшифрованный текст:");
+                String fileDecrypt = scanner.nextLine();
+                System.out.println("Введите ключ:");
                 int key = Integer.parseInt(scanner.nextLine());
                 if (key > alphabet.length()) {
                     key = key % alphabet.length();
                 }
                 int key2 = alphabet.length() - key;
-                crypt(file1, file2, key2);
+                crypt(fileEncrypt, fileDecrypt, key2);
                 break;
-
             }
             case 3: {
-                System.out.println("Введите файл1");
-                String file1 = scanner.nextLine();
-                System.out.println("Введите файл 2");
-                String file2 = scanner.nextLine();
+                System.out.println("Введите путь и имя файла, который хотите расшифровать:");
+                String fileEncrypt = scanner.nextLine();
+                System.out.println("Введите путь и имя файла, куда хотите сохранить расшифрованный текст:");
+                String fileDecrypt = scanner.nextLine();
                 char[] alp = alphabet.toCharArray();
                 for (int j = 1; j < alp.length; j++) {
-                    crypt(file1, file2, j);
-                    if (space(file2)) {
+                    crypt(fileEncrypt, fileDecrypt, j);
+                    if (brutForce(fileDecrypt)) {
                         break;
                     }
                 }
             }
             case 4: {
-                System.out.println("Введите файл1");
-                String file1 = scanner.nextLine();
-                System.out.println("Введите файл 2");
-                String file2 = scanner.nextLine();
-                System.out.println("Введите файл 3");
-                String file3 = scanner.nextLine();
-                cryptoAnal(file1, file2, file3);
+                System.out.println("Введите путь и имя файла, который хотите расшифровать:");
+                String fileEncrypt = scanner.nextLine();
+                System.out.println("Введите путь и имя вспомогательного файла, на основе которого можно провести статистический анализ текста:");
+                String fileForStatAnal = scanner.nextLine();
+                System.out.println("Введите путь и имя файла, куда хотите сохранить расшифрованный текст:");
+                String fileDecrypt = scanner.nextLine();
+                cryptoAnal(fileEncrypt, fileForStatAnal, fileDecrypt);
             }
         }
 
 
     }
 
-    public static void crypt(String file1, String file2, int key) {
-        try (BufferedReader f1 = new BufferedReader(new FileReader(file1));
-             BufferedWriter f2 = new BufferedWriter(new FileWriter(file2))) {
-            char[] alp = alphabet.toCharArray();
-            while (f1.ready()) {
-                String st = f1.readLine().toLowerCase(Locale.ROOT);
+    public static void crypt(String encFile, String deFile, int key) {
+        try (BufferedReader encFileBuf = new BufferedReader(new FileReader(encFile));
+             BufferedWriter deFileBuf = new BufferedWriter(new FileWriter(deFile))) {
+            char[] alphabetArray = alphabet.toCharArray();
+            while (encFileBuf.ready()) {
+                String st = encFileBuf.readLine().toLowerCase(Locale.ROOT);
                 char[] chfile1 = st.toCharArray();
                 char[] result = new char[chfile1.length];
                 for (int i = 0; i < chfile1.length; i++) {
                     char cfile = chfile1[i];
-                    for (int j = 0; j < alp.length; j++) {
-                        char ch = alp[j];
+                    for (int j = 0; j < alphabetArray.length; j++) {
+                        char ch = alphabetArray[j];
                         if (ch == cfile) {
-                            result[i] = alp[(j + key) % alp.length];
+                            result[i] = alphabetArray[(j + key) % alphabetArray.length];
                         }
                     }
                 }
-                f2.write(result);
+                deFileBuf.write(result);
 
             }
 
@@ -93,116 +96,116 @@ public class Project1modul {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
-    public static boolean space(String file) {
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            double good = 0;
-            double vsego = 0;
-            while (br.ready()) {
-
-                char[] znaki = {'.', ',', '?', '!'};
-                String st = br.readLine();
-                char[] chfile1 = st.toCharArray();
-                for (int i = 0; i < chfile1.length - 1; i++) {
-                    char z = chfile1[i];
-                    for (int j = 0; j < znaki.length; j++) {
-                        if (z == znaki[j]) {
-                            vsego++;
-                            if (chfile1[i + 1] == ' ') {
-                                good++;
+    public static boolean brutForce(String encFile) {
+        try (BufferedReader encFileBuf = new BufferedReader(new FileReader(encFile))) {
+            double goodHits = 0;
+            double totalHits = 0;
+            while (encFileBuf.ready()) {
+                char[] signs = {'.', ',', '?', '!'};
+                String lineFromFile = encFileBuf.readLine();
+                char[] lineSymbolArray = lineFromFile.toCharArray();
+                for (int i = 0; i < lineSymbolArray.length - 1; i++) {
+                    char iSymbol = lineSymbolArray[i];
+                    for (int j = 0; j < signs.length; j++) {
+                        if (iSymbol == signs[j]) {
+                            totalHits++;
+                            if (lineSymbolArray[i + 1] == ' ') {
+                                goodHits++;
                             }
                         }
                     }
-
                 }
-
             }
-            double pi = good / vsego;
-            if (pi > 0.8) {
+            double luck = goodHits / totalHits;
+            if (luck > 0.8) {
                 return true;
             }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("По заданному адресу файла для чтения не существует");
         } catch (IOException e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    public static void cryptoAnal(String file1, String file2, String file3) {
-        HashMap<Character, Integer> map1 = new HashMap<>();
-        HashMap<Character, Integer> map2 = new HashMap<>();
-        try (BufferedReader f1 = new BufferedReader(new FileReader(file1));
-             BufferedReader f2 = new BufferedReader(new FileReader(file2))) {
-            while (f1.ready()) {
-                String s1 = f1.readLine().toLowerCase(Locale.ROOT);
+    public static void cryptoAnal(String encFile, String statFile, String deFile) {
+        HashMap<Character, Integer> encryptedMap = new HashMap<>();
+        HashMap<Character, Integer> statAnalMap = new HashMap<>();
+        try (BufferedReader encFileBuf = new BufferedReader(new FileReader(encFile));
+             BufferedReader statFileBuf = new BufferedReader(new FileReader(statFile))) {
+            while (encFileBuf.ready()) {
+                String s1 = encFileBuf.readLine().toLowerCase(Locale.ROOT);
                 char[] chf1 = s1.toCharArray();
                 for (int i = 0; i < chf1.length; i++) {
-                    if (map1.get(chf1[i]) != null) {
-                        for (Map.Entry<Character, Integer> pair : map1.entrySet()) {
+                    if (encryptedMap.get(chf1[i]) != null) {
+                        for (Map.Entry<Character, Integer> pair : encryptedMap.entrySet()) {
                             if (pair.getKey().equals(chf1[i])) {
-                                map1.put(pair.getKey(), pair.getValue() + 1);
+                                encryptedMap.put(pair.getKey(), pair.getValue() + 1);
                             }
                         }
-                    } else map1.put(chf1[i], 1);
+                    } else encryptedMap.put(chf1[i], 1);
                 }
             }
 
-            while (f2.ready()) {
-                String s2 = f2.readLine().toLowerCase(Locale.ROOT);
+            while (statFileBuf.ready()) {
+                String s2 = statFileBuf.readLine().toLowerCase(Locale.ROOT);
                 char[] chf2 = s2.toCharArray();
                 for (int i = 0; i < chf2.length; i++) {
-                    if (map2.get(chf2[i]) != null) {
-                        for (Map.Entry<Character, Integer> pair : map2.entrySet()) {
+                    if (statAnalMap.get(chf2[i]) != null) {
+                        for (Map.Entry<Character, Integer> pair : statAnalMap.entrySet()) {
                             if (pair.getKey().equals(chf2[i])) {
-                                map2.put(pair.getKey(), pair.getValue() + 1);
+                                statAnalMap.put(pair.getKey(), pair.getValue() + 1);
                             }
                         }
-                    } else map2.put(chf2[i], 1);
+                    } else statAnalMap.put(chf2[i], 1);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Map<Character, Integer> resultmap1 = map1.entrySet().stream()
+        Map<Character, Integer> sortEncMap = encryptedMap.entrySet().stream()
                 .sorted(Map.Entry.<Character, Integer>comparingByValue().reversed())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-        Map<Character, Integer> resultmap2 = map2.entrySet().stream()
+        Map<Character, Integer> sortStatAnalMap = statAnalMap.entrySet().stream()
                 .sorted(Map.Entry.<Character, Integer>comparingByValue().reversed())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
 
-        LinkedHashMap<Character, Character> itog = new LinkedHashMap<>();
+        LinkedHashMap<Character, Character> finalMap = new LinkedHashMap<>();
 
-        Iterator<Map.Entry<Character, Integer>> it1 = resultmap1.entrySet().iterator();
-        Iterator<Map.Entry<Character, Integer>> it2 = resultmap2.entrySet().iterator();
+        Iterator<Map.Entry<Character, Integer>> it1 = sortEncMap.entrySet().iterator();
+        Iterator<Map.Entry<Character, Integer>> it2 = sortStatAnalMap.entrySet().iterator();
         while (it1.hasNext() && it2.hasNext()) {
             Map.Entry<Character, Integer> pair1 = it1.next();
             Map.Entry<Character, Integer> pair2 = it2.next();
-            itog.put(pair1.getKey(), pair2.getKey());
+            finalMap.put(pair1.getKey(), pair2.getKey());
         }
-        itog.entrySet().forEach(System.out::println);
 
-        try (BufferedReader fileCrypted = new BufferedReader(new FileReader(file1));
-             BufferedWriter fileUncrypted = new BufferedWriter(new FileWriter(file3))) {
-            while (fileCrypted.ready()) {
-                String st = fileCrypted.readLine().toLowerCase(Locale.ROOT);
-                char[] chfile1 = st.toCharArray();
-                char[] result = new char[chfile1.length];
-                for (int i = 0; i < chfile1.length; i++) {
-                    char cfile = chfile1[i];
-                    for (Map.Entry<Character, Character> pair : itog.entrySet()) {
-                        if (pair.getKey().equals(cfile)) {
+        try (BufferedReader encryptedFile = new BufferedReader(new FileReader(encFile));
+             BufferedWriter decryptedFile = new BufferedWriter(new FileWriter(deFile))) {
+            while (encryptedFile.ready()) {
+                String st = encryptedFile.readLine().toLowerCase(Locale.ROOT);
+                char[] encryptedFileArray = st.toCharArray();
+                char[] result = new char[encryptedFileArray.length];
+                for (int i = 0; i < encryptedFileArray.length; i++) {
+                    char iSymbol = encryptedFileArray[i];
+                    for (Map.Entry<Character, Character> pair : finalMap.entrySet()) {
+                        if (pair.getKey().equals(iSymbol)) {
                             result[i] = pair.getValue();
                         }
                     }
 
                 }
-                fileUncrypted.write(result);
+                decryptedFile.write(result);
             }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("По заданному адресу файла для чтения не существует");
         } catch (IOException e) {
             e.printStackTrace();
         }
