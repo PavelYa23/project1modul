@@ -1,6 +1,7 @@
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Project1modul {
     static String alphabet = "абвгдежзийклмнопрстуфхцчшщъыьэюя., -?!—";
@@ -55,7 +56,9 @@ public class Project1modul {
                 String file1 = scanner.nextLine();
                 System.out.println("Введите файл 2");
                 String file2 = scanner.nextLine();
-                cryptoAnal(file1, file2);
+                System.out.println("Введите файл 3");
+                String file3 = scanner.nextLine();
+                cryptoAnal(file1, file2, file3);
             }
         }
 
@@ -127,9 +130,9 @@ public class Project1modul {
         return false;
     }
 
-    public static void cryptoAnal(String file1, String file2) {
-        Map<Character, Integer> map1 = new HashMap<>();
-        Map<Character, Integer> map2 = new HashMap<>();
+    public static void cryptoAnal(String file1, String file2, String file3) {
+        HashMap<Character, Integer> map1 = new HashMap<>();
+        HashMap<Character, Integer> map2 = new HashMap<>();
         try (BufferedReader f1 = new BufferedReader(new FileReader(file1));
              BufferedReader f2 = new BufferedReader(new FileReader(file2))) {
             while (f1.ready()) {
@@ -142,17 +145,10 @@ public class Project1modul {
                                 map1.put(pair.getKey(), pair.getValue() + 1);
                             }
                         }
-
                     } else map1.put(chf1[i], 1);
                 }
             }
-            for (Map.Entry<Character, Integer> pair : map1.entrySet()) {
-                System.out.println(pair.getKey() + "   " + pair.getValue());
-            }
 
-            System.out.println("-------");
-            System.out.println("-------");
-            System.out.println("-------");
             while (f2.ready()) {
                 String s2 = f2.readLine().toLowerCase(Locale.ROOT);
                 char[] chf2 = s2.toCharArray();
@@ -162,22 +158,53 @@ public class Project1modul {
                             if (pair.getKey().equals(chf2[i])) {
                                 map2.put(pair.getKey(), pair.getValue() + 1);
                             }
-
                         }
                     } else map2.put(chf2[i], 1);
                 }
-
-            }
-            for (Map.Entry<Character, Integer> pair : map2.entrySet()) {
-                System.out.println(pair.getKey() + "   " + pair.getValue());
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        map1.entrySet().stream().sorted(Map.Entry.<Character,Integer>comparingByValue().reversed()).forEach(System.out::println);
-        map2.entrySet().stream().sorted(Map.Entry.<Character,Integer>comparingByValue().reversed()).forEach(System.out::println);
+        Map<Character, Integer> resultmap1 = map1.entrySet().stream()
+                .sorted(Map.Entry.<Character, Integer>comparingByValue().reversed())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        Map<Character, Integer> resultmap2 = map2.entrySet().stream()
+                .sorted(Map.Entry.<Character, Integer>comparingByValue().reversed())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
 
+        LinkedHashMap<Character, Character> itog = new LinkedHashMap<>();
 
+        Iterator<Map.Entry<Character, Integer>> it1 = resultmap1.entrySet().iterator();
+        Iterator<Map.Entry<Character, Integer>> it2 = resultmap2.entrySet().iterator();
+        while (it1.hasNext() && it2.hasNext()) {
+            Map.Entry<Character, Integer> pair1 = it1.next();
+            Map.Entry<Character, Integer> pair2 = it2.next();
+            itog.put(pair1.getKey(), pair2.getKey());
+        }
+        itog.entrySet().forEach(System.out::println);
+
+        try (BufferedReader fileCrypted = new BufferedReader(new FileReader(file1));
+             BufferedWriter fileUncrypted = new BufferedWriter(new FileWriter(file3))) {
+            while (fileCrypted.ready()) {
+                String st = fileCrypted.readLine().toLowerCase(Locale.ROOT);
+                char[] chfile1 = st.toCharArray();
+                char[] result = new char[chfile1.length];
+                for (int i = 0; i < chfile1.length; i++) {
+                    char cfile = chfile1[i];
+                    for (Map.Entry<Character, Character> pair : itog.entrySet()) {
+                        if (pair.getKey().equals(cfile)) {
+                            result[i] = pair.getValue();
+                        }
+                    }
+
+                }
+                fileUncrypted.write(result);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
